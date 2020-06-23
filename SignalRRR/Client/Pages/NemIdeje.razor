@@ -1,0 +1,50 @@
+﻿@page "/test"
+@inject NavigationManager NM
+@using Microsoft.AspNetCore.SignalR.Client
+
+<h3>NemIdeje --- @nesto</h3>
+<ul>
+	@for (int br = 0; br < x; br++)
+	{
+		<li>@br</li>
+	}
+</ul>
+@{ 
+	Console.WriteLine("Nesto nesto");
+}
+
+@if (x > 5)
+{
+	<p>Veci je od 5</p>
+}
+
+<button class="btn-primary" @onclick="() => Foo(nesto)">Neko dugme</button>
+
+@code {
+	public int x = 8;
+	public string nesto = "Bla";
+
+	public HubConnection HC;
+
+	protected override async Task OnInitializedAsync()
+	{
+		HC = new HubConnectionBuilder().WithUrl(NM.ToAbsoluteUri("haab")).Build();
+
+		HC.On<string>("ZaServer",(s) =>
+						{
+							Console.WriteLine("Ovde sam: " + s);
+							nesto = s;
+							StateHasChanged();
+						});
+
+		await HC.StartAsync();
+	}
+
+
+	public void Foo(string ulaz)
+	{
+
+
+		HC.SendAsync("Test", "Evo neka poruka od klijenta");
+	}
+}
